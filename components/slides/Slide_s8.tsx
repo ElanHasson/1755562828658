@@ -1,0 +1,115 @@
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { useEffect, useRef } from 'react';
+import mermaid from 'mermaid';
+
+export default function Slide() {
+  const markdown = `**Objection Handling: LAER + Flip**
+- Listen, Acknowledge, Explore, Respond (LAER)
+- Isolate the real blocker: need, fit, risk, budget, or timing
+- Flip the top objection into your demo/proof
+- Close with a clear next step (pilot or MAP)
+
+**Risk Reversal Menu**
+- Pilot/POC with success criteria and opt-out
+- Phased rollout + onboarding support
+- Performance SLAs or milestone-based fees
+- Usage-based or rental pricing
+- Guarantees: “stain-proof”/"time-to-value" commitments
+
+**CFO-Era Proof (under 2 minutes)**
+- 6–12 month payback model; show assumptions and sensitivity
+- One-page business case co-authored with your champion
+- Peer proof: before/after metrics, references, and benchmarks
+
+**"Impossible" Objection Flips**
+- Ketchup popsicle: white-glove, no-drip demo + stain-free guarantee
+- Heaters in the Sahara: “Win the night” pilot at a desert venue
+- Salt to a slug: sell to gardeners—precision applicator + safety guidance
+
+\`\`\`mermaid
+flowchart TD
+    A[Objection surfaces] --> B[LAER]
+    B --> C{Type?}
+    C -->|Risk/Budget| D[Pick risk reversal lever]
+    C -->|Fit/Need| E[Reframe value to buyer's metrics]
+    D --> F[Proof asset: demo/case/ROI]
+    E --> F
+    F --> G[Mutual Action Plan: pilot -> go-live]
+\`\`\``;
+  const mermaidRef = useRef(0);
+  
+  useEffect(() => {
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#667eea',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#7c3aed',
+        lineColor: '#5a67d8',
+        secondaryColor: '#764ba2',
+        tertiaryColor: '#667eea',
+        background: '#1a202c',
+        mainBkg: '#2d3748',
+        secondBkg: '#4a5568',
+        tertiaryBkg: '#718096',
+        textColor: '#fff',
+        nodeTextColor: '#fff',
+      }
+    });
+    
+    // Find and render mermaid diagrams
+    const renderDiagrams = async () => {
+      const diagrams = document.querySelectorAll('.language-mermaid');
+      for (let i = 0; i < diagrams.length; i++) {
+        const element = diagrams[i];
+        const graphDefinition = element.textContent;
+        const id = `mermaid-${mermaidRef.current++}`;
+        
+        try {
+          const { svg } = await mermaid.render(id, graphDefinition);
+          element.innerHTML = svg;
+          element.classList.remove('language-mermaid');
+          element.classList.add('mermaid-rendered');
+        } catch (error) {
+          console.error('Mermaid rendering error:', error);
+        }
+      }
+    };
+    
+    renderDiagrams();
+  }, [markdown]);
+  
+  return (
+    <div className="slide markdown-slide">
+      <h1>Objections, Risk Reversal, and CFO-Era Proof—Quick Hits</h1>
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code({node, className, children, ...props}: any) {
+            const match = /language-(w+)/.exec(className || '');
+            const language = match ? match[1] : '';
+            const isInline = !className;
+            
+            if (!isInline && language === 'mermaid') {
+              return (
+                <pre className="language-mermaid">
+                  <code>{String(children).replace(/\n$/, '')}</code>
+                </pre>
+              );
+            }
+            
+            return (
+              <code className={className} {...props}>
+                {children}
+              </code>
+            );
+          }
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
+    </div>
+  );
+}
