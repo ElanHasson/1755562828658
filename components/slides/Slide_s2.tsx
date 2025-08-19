@@ -2,6 +2,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function Slide() {
   const markdown = `- **Thesis:** You don’t force product–market fit—you create buyer–use case fit.
@@ -11,7 +13,6 @@ export default function Slide() {
   - Salt to a slug → sell to gardeners for yield protection.
   - Heaters in the Sahara → sell night comfort and process stability.
   - Ketchup popsicles + white gloves → sell a no-mess novelty with proof.
-
 \`\`\`mermaid
 flowchart TD
     A[Your Offer] --> B[Resegment Buyer & Context]
@@ -22,7 +23,6 @@ flowchart TD
     F --> G[Proof: case studies, ROI, demos]
     E -- No --> H[Disqualify/Redirect]
 \`\`\`
-
 - **Value Hypothesis Template:**
 \`\`\`yaml
 for: [ICP/persona in specific context]
@@ -37,12 +37,10 @@ proof: [case study, pilot plan, references]
 risk_reversal: [trial, guarantee, MAP]
 ethics_check: [why buyer clearly benefits]
 \`\`\`
-
 - **Quick Checks:**
   - Fit: Can we name a micro-segment and moment where this wins?
   - Job: What are they firing today and why?
-  - Ethics: Would we sell this to a friend we admire?
-`;
+  - Ethics: Would we sell this to a friend we admire?`;
   const mermaidRef = useRef(0);
   
   useEffect(() => {
@@ -93,12 +91,21 @@ ethics_check: [why buyer clearly benefits]
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
-          code({node, className, children, ...props}: any) {
-            const match = /language-(w+)/.exec(className || '');
+          code({node, inline, className, children, ...props}: any) {
+            const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
-            const isInline = !className;
             
-            if (!isInline && language === 'mermaid') {
+            // Handle inline code
+            if (inline) {
+              return (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            }
+            
+            // Handle mermaid diagrams
+            if (language === 'mermaid') {
               return (
                 <pre className="language-mermaid">
                   <code>{String(children).replace(/\n$/, '')}</code>
@@ -106,10 +113,28 @@ ethics_check: [why buyer clearly benefits]
               );
             }
             
+            // Handle code blocks with syntax highlighting
+            if (language) {
+              return (
+                <SyntaxHighlighter
+                  language={language}
+                  style={atomDark}
+                  showLineNumbers={true}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              );
+            }
+            
+            // Default code block without highlighting
             return (
-              <code className={className} {...props}>
-                {children}
-              </code>
+              <pre>
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              </pre>
             );
           }
         }}

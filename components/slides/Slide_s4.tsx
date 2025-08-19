@@ -2,6 +2,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function Slide() {
   const markdown = `**Demo objective**
@@ -23,7 +25,6 @@ export default function Slide() {
 - 10s time-lapse: untreated vs. ringed seedlings
 - Before/after count: 12/12 intact vs. 7/12 intact
 - ROI: $9 kit vs. ~$36 in lost seedlings per bed
-
 \`\`\`mermaid
 flowchart TD
     A[Resegment Buyer/Context] --> B[Reframe JTBD & Outcomes]
@@ -31,12 +32,10 @@ flowchart TD
     C --> D[Demonstrate Proof]
     D --> E[Next Step: 7-day Micro-Pilot]
 \`\`\`
-
 **Value hypothesis (filled)**
 \`\`\`
 For home gardeners losing seedlings to slugs, our SlugGuard kit protects beds by 80–90% in 48 hours via a precision salt barrier and usage guide, proven by side-by-side demos and a 7-day micro-trial, de-risked with a no-mess applicator and satisfaction guarantee.
 \`\`\`
-
 **Demo checklist**
 - Two small planters (left: untreated, right: salted ring), measured shaker, salt
 - Pre-recorded 10s time-lapse clip queued
@@ -92,12 +91,21 @@ For home gardeners losing seedlings to slugs, our SlugGuard kit protects beds by
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
-          code({node, className, children, ...props}: any) {
-            const match = /language-(w+)/.exec(className || '');
+          code({node, inline, className, children, ...props}: any) {
+            const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
-            const isInline = !className;
             
-            if (!isInline && language === 'mermaid') {
+            // Handle inline code
+            if (inline) {
+              return (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            }
+            
+            // Handle mermaid diagrams
+            if (language === 'mermaid') {
               return (
                 <pre className="language-mermaid">
                   <code>{String(children).replace(/\n$/, '')}</code>
@@ -105,10 +113,28 @@ For home gardeners losing seedlings to slugs, our SlugGuard kit protects beds by
               );
             }
             
+            // Handle code blocks with syntax highlighting
+            if (language) {
+              return (
+                <SyntaxHighlighter
+                  language={language}
+                  style={atomDark}
+                  showLineNumbers={true}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              );
+            }
+            
+            // Default code block without highlighting
             return (
-              <code className={className} {...props}>
-                {children}
-              </code>
+              <pre>
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              </pre>
             );
           }
         }}
