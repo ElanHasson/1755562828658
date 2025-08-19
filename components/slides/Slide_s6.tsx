@@ -24,7 +24,7 @@ export default function Slide() {
   - Record results; share video/social proof
 \`\`\`mermaid
 flowchart LR
-  D[Discovery: "What worries you about serving red foods?"] --> R[Reframe: "Novelty without mess"]
+  D["Discovery: 'What worries you about serving red foods?'"] --> R["Reframe: 'Novelty without mess'"]
   R --> K[De-risk: sleeve, guarantee, pilot]
   K --> P[Proof: White-Glove Challenge]
   P --> A[Action: Schedule 1-event pilot + MAP]
