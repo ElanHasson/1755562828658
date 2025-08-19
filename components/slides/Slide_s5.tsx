@@ -37,7 +37,7 @@ sequenceDiagram
   participant F as Finance
   S->>M: Nights drop to 8°C—guests leave early
   M-->>S: We lose traffic after 9pm
-  S->>M: Pilot 7 nights; seat temp +11°C; measure NPS & sales
+  S->>M: Pilot 7 nights & seat temp +11°C & measure NPS & sales
   SO-->>S: Safety in wind and sand?
   S->>SO: Tip-over shutoff, CSA certs, sand filters, training
   F-->>S: Upfront cost?
